@@ -40,14 +40,16 @@ LDFLAGS += -nostdlib -lgcc -mcmodel=medlow -nostartfiles -ffreestanding \
 					 -L$(SHARED_DIR)/ldscripts
 
 SOURCES := $(wildcard $(SRC)/*.c) \
-					 $(wildcard $(SRC)/*.cpp) \
-OBJECTS := $(addprefix $(OBJ)/, $(SOURCES:%.c=%.o) $(SOURCES:%.cpp:%.o) $(SOURCES:%.S=%.o))
+					 $(HAL_DIR)/peripherals/Source/mik32_hal_pcc.c \
+					 $(HAL_DIR)/peripherals/Source/mik32_hal_gpio.c \
+					 $(HAL_DIR)/peripherals/Source/mik32_hal_adc.c \
+					 $(SHARED_DIR)/libs/xprintf.c \
+					 $(SHARED_DIR)/libs/uart_lib.c \
 
-SOURCES += $(wildcard $(HAL_DIR)/peripherals/Source/*.c) \
-					 $(wildcard $(SHARED_DIR)/libs/*.c)
-OBJECTS += $(RUNTIME:.S=.o)
-OBJECTS += $($(HAL_DIR)/peripherals/Source/%.c=$(OBJ)/%.o) \
-					 $($(SHARED_DIR)/libs/%.c=$(OBJ)/%.o)
+OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
+OBJECTS += $(patsubst $(SHARED_DIR)/runtime/%.S, $(OBJ)/%.o, $(RUNTIME))
+SOURCES += $(RUNTIME)
+
 OUT = $(BUILD)/$(PROJECT_NAME).hex
 
 all: $(OBJ) $(BUILD) $(OUT)
@@ -62,12 +64,12 @@ $(OUT): $(OBJ)/$(PROJECT_NAME).elf
 	$(OBJCOPY) -O ihex $^ $@
 
 $(OBJ)/$(PROJECT_NAME).elf: $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $^ $(LDFLAGS) $(LIBS)
 
-$(OBJ)/%.o: %.c
+$(OBJ)/%.o: $(SRC)/%.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $^
 
-$(OBJ)/%.o: %.cpp
+$(OBJ)/%.o: $(SHARED_DIR)/runtime/%.S
 	$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $^
 
 upload: $(OUT)
