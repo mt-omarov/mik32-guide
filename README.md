@@ -2,21 +2,25 @@
 
 ## Дерево проекта
 
-- `src/` - папка с исходниками проекта (все `*.c`, `*.cpp`, `*.S` файлы),
-- `Makefile` - файл правил сборки проекта,
+- `src/` – папка с исходниками проекта (все `*.c`, `*.S` файлы),
+- `Makefile` – файл правил сборки проекта,
+- `Makefile.conf` – файл с определением переменных и констант сборки,
+- `Makefile.deps` – файл правил установки набора инструментов и зависимых проектов.
 
 ## Запуск
 
-При запуске нужно указать путь к папке кросс-компилятора и к `openOCD`.
-Для macos кросс-компилятор может располагаться по пути `/opt/homebrew/opt/riscv-gnu-toolchain/`.
-В Makefile переменные, отвечающие за это: `CROSS_PREFIX`, `OPENOCD`.
-
-### Запуск кросс-компиляции
-
 ```bash
-make \
-  CROSS_PREFIX='<путь к папке кросс-компилятора>/bin/riscv64-unknown-elf-' \
-  OPENOCD='<путь к openOCD>'
+make    # проверка установки тулчейна,
+        # установка зависимых проектов (при необходимости),
+        # сборка программы /build/$(PROJECT_NAME).hex
+
+make clean              # очистка временных файлов и результатов сборки (obj/ и build/)
+make install-toolchain  # установка тулчейна (~/.local/xPacks/riscv-none-elf-gcc/)
+make install-openocd    # установка openocd (~/.local/xPacks/openocd/)
+make install-deps       # установка зависимых проектов
+make delete-tools       # удаление установленных тулчейна и openocd
+make delete-deps        # удаление зависимых проектов
+make purge              # make clean delete-tools delete-deps
 ```
 
 ### Запуск прошивки микроконтроллера
