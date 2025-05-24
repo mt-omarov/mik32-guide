@@ -17,8 +17,7 @@ int main()
 
     while (1)
     {
-        HAL_GPIO_TogglePin(GPIO_0, GPIO_PIN_3);
-        HAL_GPIO_TogglePin(GPIO_1, GPIO_PIN_3);
+        HAL_GPIO_TogglePin(GPIO_0, GPIO_PIN_9);
 
         HAL_DelayMs(500);
     }
@@ -49,10 +48,9 @@ void GPIO_Init()
     __HAL_PCC_GPIO_0_CLK_ENABLE();
     __HAL_PCC_GPIO_1_CLK_ENABLE();
 
-    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Pin = GPIO_PIN_9;
     GPIO_InitStruct.Mode = HAL_GPIO_MODE_GPIO_OUTPUT;
     GPIO_InitStruct.Pull = HAL_GPIO_PULL_NONE;
 
     HAL_GPIO_Init(GPIO_0, &GPIO_InitStruct);
-    HAL_GPIO_Init(GPIO_1, &GPIO_InitStruct);
 }
