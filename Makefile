@@ -1,23 +1,15 @@
 include Makefile.conf
 
-all: check-tools install-deps $(OUT)
+all: check-tools install-deps
 
-$(OUT): $(OBJ)/$(PROJECT_NAME).elf | $(BUILD)
+$(OUT): $(OBJ)/$(PROJECT_NAME).elf
 	$(OBJCOPY) -O ihex $^ $@
 
-$(OBJ)/$(PROJECT_NAME).elf: $(OBJECTS)
-	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $^ $(LDFLAGS) $(LIBS)
-
-$(OBJ)/%.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) -c -g $(CFLAGS) $(INCLUDE) -o $@ $^
-
-$(OBJ)/%.o: %.S
-	@mkdir -p $(dir $@)
-	$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $^
-
-$(BUILD):
-	@mkdir -p $@
+# Добавьте необходимые для сборки проекта правила
+$(OBJ)/$(PROJECT_NAME).elf:
+	echo "Not implemented"
+	exit 1
+	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $(LDFLAGS) $(LIBS)
 
 upload: $(OUT)
 	python3 $(UPLOADER_DIR)/mik32_upload.py --run-openocd --openocd-exec=$(OPENOCD) \
