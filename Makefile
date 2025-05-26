@@ -1,32 +1,41 @@
 include Makefile.conf
 
-all: check-tools install-deps $(OUT)
+all: check-tools install-deps $(HEX)
 
-$(OUT): $(OBJ)/$(PROJECT_NAME).elf | $(BUILD)
-	$(OBJCOPY) -O ihex $^ $@
+$(HEX): $(ELF)
+	$(OBJCOPY) -O ihex $< $@
 
-$(OBJ)/$(PROJECT_NAME).elf: $(OBJECTS)
+$(ELF): $(OBJECTS) | $(BUILD)
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $^ $(LDFLAGS) $(LIBS)
 
 $(OBJ)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) -c -g $(CFLAGS) $(INCLUDE) -o $@ $^
+	$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
 
 $(OBJ)/%.o: %.S
 	@mkdir -p $(dir $@)
-	$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $^
+	$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
 
 $(BUILD):
 	@mkdir -p $@
 
-upload: $(OUT)
+upload: check-tools install-deps $(HEX)
 	python3 $(UPLOADER_DIR)/mik32_upload.py --run-openocd --openocd-exec=$(OPENOCD) \
 	        --openocd-scripts $(UPLOADER_DIR)/openocd-scripts --boot-mode $(BOOT_MODE) \
-	        --openocd-interface interface/ftdi/mikron-link.cfg $^
+	        --openocd-interface interface/ftdi/mikron-link.cfg $(HEX)
+
+start-server: check-tools install-deps $(ELF)
+	@$(OPENOCD) \
+		-f $(UPLOADER_DIR)/openocd-scripts/interface/ftdi/mikron-link.cfg \
+		-f $(UPLOADER_DIR)/openocd-scripts/target/mik32.cfg 2>&1>/dev/tty || \
+		{ \
+			echo "Failed to start openocd server" && \
+			exit 1; \
+		}
 
 clean:
 	rm -rf $(OBJ) $(BUILD)
 
 purge: clean delete-deps delete-toolchain delete-openocd
 
-.PHONY: all upload clean purge
+.PHONY: all upload clean purge start-server
