@@ -32,6 +32,16 @@ start-server: check-tools install-deps $(ELF)
 			echo "Failed to start openocd server" && \
 			exit 1; \
 		}
+	$(CROSS_PREFIX)gdb --init-eval-command="target remote :3333" $(ELF)
+
+stop-server: check-tools
+	@pid=$$(ps aux | grep '$(OPENOCD)' | grep -v grep | awk '{print $$2}'); \
+	if [ -n "$$pid" ]; then \
+		echo "Killing openocd (PID $$pid)"; \
+		kill -9 $$pid; \
+	else \
+		echo "openocd is not running"; \
+	fi
 
 clean:
 	rm -rf $(OBJ) $(BUILD)
