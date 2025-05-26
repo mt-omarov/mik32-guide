@@ -27,7 +27,7 @@ upload: check-tools install-deps $(HEX)
 start-server: check-tools install-deps $(ELF)
 	@$(OPENOCD) \
 		-f $(UPLOADER_DIR)/openocd-scripts/interface/ftdi/mikron-link.cfg \
-		-f $(UPLOADER_DIR)/openocd-scripts/target/mik32.cfg 2>&1>/dev/tty || \
+		-f $(UPLOADER_DIR)/openocd-scripts/target/mik32.cfg &>/dev/null || \
 		{ \
 			echo "Failed to start openocd server" && \
 			exit 1; \
